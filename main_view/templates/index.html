@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <title>{{ title }}</title>
+    </head>
+    <body>
+        <form id="listbox-form">
+            <select id="listbox-folder" size="5"></select>
+            <select id="listbox-dataset" size="5"></select>
+            <select multiple id="listbox-country" size="5"></select>
+            <select multiple id="listbox-products" size="5"></select>
+            <select multiple id="listbox-elements" size="5"></select>
+
+            <button id="query-button" value="submit"> QUERY </button>
+        </form>
+        <p id="data-table"></p>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="{{ url_for('static', filename="js/top_row.js")}}"></script>
+    </body>
+    
+</html>
