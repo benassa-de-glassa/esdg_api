@@ -72,21 +72,27 @@ def data_set_table():
     return the files in the folder selected as 
     """
 
+    # get the file
     FOLDER = request.args.get('selected_folder')
     DATASET = request.args.get('selected_dataset')
     FILE_NAME = os.path.join(DATA_WORKING_DIRECTORY, FOLDER, DATASET)
 
+    # get the selected rows
     COUNTRIES = request.values.getlist('selected_countries[]')
     PRODUCTS = request.values.getlist('selected_products[]')
     ELEMENTS = request.values.getlist('selected_elements[]')
     
-    combinations = itertools.product(COUNTRIES, PRODUCTS, ELEMENTS)
-    print(combinations)
-
+    
     DATA = pd.read_csv(FILE_NAME)
 
-    rows = []
-    for com in combinations: 
-        pass
+    country_rows = DATA['countries'].isin( COUNTRIES).values
+    product_rows = DATA['products'].isin( PRODUCTS).values
+    element_rows = DATA['elements'].isin( ELEMENTS).values
 
-    return "0"
+    rows = np.argwhere(country_rows * product_rows * element_rows).flatten()
+
+    RETURN_DF = DATA.iloc[rows, :]
+    return RETURN_DF.to_html()
+
+
+

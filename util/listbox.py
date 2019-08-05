@@ -1,4 +1,4 @@
-from util.sanitize_string import sanitize
+
 
 def list_to_option(string_list):
     """
@@ -6,5 +6,5 @@ def list_to_option(string_list):
     """
     options = ''
     for element in string_list:
-        options += '<option value={}> {} </option>'.format(sanitize(element), element)
+        options += '<option value="{}"> {} </option>'.format(element, element)
     return options
