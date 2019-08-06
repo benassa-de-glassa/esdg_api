@@ -6,7 +6,8 @@ from flask import render_template, request, jsonify
 
 import pandas as pd
 import numpy as np
-from main_view import app
+
+from . import main_view
 
 from util import listbox, dataframe
 
@@ -14,12 +15,12 @@ from util import listbox, dataframe
 CWD = os.getcwd()
 DATA_WORKING_DIRECTORY = os.path.join(CWD, 'data')
 
-@app.route('/')
-@app.route('/index')
+@main_view.route('/')
+@main_view.route('/index')
 def index():
     return render_template('index.html', title="ESDG")
 
-@app.route('/ajax/index/folder_listbox', methods=['GET'])
+@main_view.route('/ajax/index/folder_listbox', methods=['GET'])
 def folder_option():
     """
     return the options for the first listbox in the main view as html options
@@ -28,7 +29,7 @@ def folder_option():
     return listbox.list_to_option(os.listdir('data'))
 
 
-@app.route('/ajax/index/dataset_listbox', methods=['GET'])
+@main_view.route('/ajax/index/dataset_listbox', methods=['GET'])
 def data_set_option():
     """
     return the files in the folder selected as 
@@ -36,7 +37,7 @@ def data_set_option():
     folder = request.args.get('selected_folder')
     return listbox.list_to_option(os.listdir(os.path.join(DATA_WORKING_DIRECTORY, folder)))
 
-@app.route('/ajax/index/country_listbox', methods=['GET'])
+@main_view.route('/ajax/index/country_listbox', methods=['GET'])
 def country_option():
     """
     return the list of available countries from the csv file to which the first two listboxes point
@@ -56,7 +57,7 @@ def country_option():
      'elements':listbox.list_to_option(element_list),
     }
     
-@app.route('/ajax/index/data_table', methods=['GET'])
+@main_view.route('/ajax/index/data_table', methods=['GET'])
 def data_set_table():
     """
     return the files in the folder selected as 
@@ -75,7 +76,7 @@ def data_set_table():
     return dataframe.select_dataframe(FILE_NAME, COUNTRIES, PRODUCTS, ELEMENTS).to_html()
 
 
-@app.route('/barplot')
+@main_view.route('/barplot')
 def barplot():
     return render_template('bar_plot.html', title="ESDG - Barplot")
 
