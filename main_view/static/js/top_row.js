@@ -3,7 +3,7 @@ $(document).ready(function() {
     $.ajax({
         data : {},
             type : 'GET',
-            url : '/ajax/folder_listbox'
+            url : '/ajax/index/folder_listbox'
             })
         .done(function(output) {
             $('#listbox-folder').html(output);
@@ -18,7 +18,7 @@ $(document).ready(function() {
             selected_folder: $('#listbox-folder').val()
                 },
             type : 'GET',
-            url : '/ajax/dataset_listbox'
+            url : '/ajax/index/dataset_listbox'
             })
         .done(function(data) {
             $('#listbox-dataset').html(data);
@@ -36,7 +36,7 @@ $(document).ready(function() {
             selected_dataset: $('#listbox-dataset').val()
                 },
             type : 'GET',
-            url : '/ajax/country_listbox'
+            url : '/ajax/index/country_listbox'
             })
         .done(function(output) {
             $('#listbox-country').html(output['countries']);
@@ -59,7 +59,7 @@ $(document).ready(function() {
             selected_elements: $('#listbox-elements').val()
                 },
             type : 'GET',
-            url : '/ajax/data_table'
+            url : '/ajax/index/data_table'
             })
         .done(function(output) {
             $('#data-table').html(output)
