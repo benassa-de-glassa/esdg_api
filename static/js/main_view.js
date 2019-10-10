@@ -62,9 +62,42 @@ $(document).ready(function() {
             url : '/ajax/index/data_table'
             })
         .done(function(output) {
-            $('#data-table').html(output)
+            $('#data-table').html(output);
         });
     event.preventDefault();
     });
 });
 
+
+// TODO write JS skript which takes JSON and returns it in html form for reduced traffic
+// $(document).ready(function(){
+//     $('#query-button').on('click', function(event) {
+//     $.ajax({
+//         data : {
+//             selected_folder: $('#listbox-folder').val(),
+//             selected_dataset: $('#listbox-dataset').val(),
+//             selected_countries: $('#listbox-country').val(),
+//             selected_products: $('#listbox-products').val(),
+//             selected_elements: $('#listbox-elements').val()
+//                 },
+//             type : 'GET',
+//             url : '/ajax/index/data_table_json'
+//             })
+//         .done(function(output) {
+//             var html_rows = []
+//             var keys = []
+
+//             for (let i = 0; i < output.length; i++) {
+//                 const element = output[i];
+//                 if (element.key )
+                
+//             }
+//             $.each( output, function(key, val){
+//                 rows[key].push("<tr id='" + key + "'>" + val + "</td>")
+//             })
+                
+//             }
+//         });
+//     event.preventDefault();
+//     });
+// });

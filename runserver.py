@@ -6,4 +6,4 @@ app = Flask(__name__)
 app.register_blueprint(main_view)
 app.register_blueprint(timeseries)
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run() # host='0.0.0.0', debug=False)
