@@ -1,7 +1,3 @@
-// TODO write JS skript which takes JSON and returns it in html form for reduced traffic
-function scatter_plot(json_data) {
-    
-}
 
 $(document).ready(function() {
     $('#query-button-time-series').on('click', function(event) {

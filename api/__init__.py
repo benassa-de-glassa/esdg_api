@@ -1,5 +1,5 @@
 from flask import Blueprint
-timeseries = Blueprint('timeseries', __name__)
+api = Blueprint('api', __name__)
 
 # import routes
 from . import routes
