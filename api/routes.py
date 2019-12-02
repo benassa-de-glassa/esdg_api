@@ -12,7 +12,7 @@ from . import api
 
 ## DEFINITIONS
 CWD = os.getcwd()
-DATA_WORKING_DIRECTORY = os.path.join(CWD, 'data/database.hdf5') # r'E:/SSD/DATA'# os.path.join(CWD, 'data') 
+DATA_WORKING_DIRECTORY = os.path.join(CWD, 'data/database.hdf5') 
 
 @api.route('/api/groups', methods=['GET'])
 def folder_option():
@@ -31,26 +31,24 @@ def data_set_option():
     """
     dataset = request.args.get('dataset')
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
-        return jsonify(groups = list(f[dataset].keys()))
+        return jsonify(dataset = list(f[dataset].keys()))
 
 @api.route('/api/meta', methods=['GET'])
 def country_option():
     """
     return the list of available countries from the csv file to which the first two listboxes point
     """
-    FOLDER = request.args.get('selected_folder')
-    DATASET = request.args.get('selected_dataset')
+    group = request.args.get('group')
+    dataset = request.args.get('dataset')
     
-    FILE_NAME = os.path.join(DATA_WORKING_DIRECTORY, FOLDER, DATASET)
-    
-    country, product, element = dataframe.get_dimension_names(FILE_NAME)
+    FILE_NAME = os.path.join(DATA_WORKING_DIRECTORY, group, dataset)
+    meta = {}
+    with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
+        attributes = f["{}/{}".format(group, dataset)].attrs 
+        for item in attributes['attributions']:
+            meta[item] = attributes['{}_attribution'.format(item)].tolist()
 
-    
-    return {
-     'countries':listbox.list_to_option(country),
-     'products':listbox.list_to_option(product),
-     'elements':listbox.list_to_option(element),
-    }
+        return jsonify(attributes = attributes['attributions'].tolist(), meta = meta)
     
 @api.route('/api/data', methods=['GET'])
 def data_set_table():
@@ -68,4 +66,4 @@ def data_set_table():
     PRODUCTS = request.values.getlist('selected_products[]')
     ELEMENTS = request.values.getlist('selected_elements[]')
     
-    return dataframe.select_dataframe(FILE_NAME, COUNTRIES, PRODUCTS, ELEMENTS).to_html()
+    return jsonify("not implemented yet")
