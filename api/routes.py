@@ -21,7 +21,7 @@ def folder_option():
     i.e. the list of folders which host the databases
     """
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
-        groups = [{'label': index, 'value': value} for index, value in enumerate(f.keys()) ]
+        groups = [{'value': index, 'label': value} for index, value in enumerate(f.keys())]
         return jsonify(groups = groups)
 
 
@@ -33,7 +33,7 @@ def data_set_option():
     dataset = request.args.get('dataset')
 
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
-        datasets = [{'label': index, 'value': value} for index, value in enumerate(f[dataset].keys()) ]
+        datasets = [{'value': index, 'label': value} for index, value in enumerate(f[dataset].keys())]
         return jsonify(dataset = datasets)
 
 @api.route('/api/meta', methods=['GET'])
@@ -43,7 +43,7 @@ def country_option():
     """
     group = request.args.get('group')
     dataset = request.args.get('dataset')
-    
+
     FILE_NAME = os.path.join(DATA_WORKING_DIRECTORY, group, dataset)
     meta = {}
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
