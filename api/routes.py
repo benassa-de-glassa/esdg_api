@@ -12,7 +12,7 @@ from . import api
 
 ## DEFINITIONS
 CWD = os.getcwd()
-DATA_WORKING_DIRECTORY = os.path.join(CWD, 'data/database.hdf5') 
+DATA_WORKING_DIRECTORY = os.path.join(CWD, '/media/pi/UNTITLED/database.hdf5') 
 
 @api.route('/api/groups', methods=['GET'])
 def folder_option():
@@ -21,7 +21,7 @@ def folder_option():
     i.e. the list of folders which host the databases
     """
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
-        groups = [{'value': index, 'label': value} for index, value in enumerate(f.keys())]
+        groups = [{'value': index, 'label': value, 'type': 'groups'} for index, value in enumerate(f.keys())]
         return jsonify(groups = groups)
 
 
@@ -33,7 +33,7 @@ def data_set_option():
     dataset = request.args.get('dataset')
 
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
-        datasets = [{'value': index, 'label': value} for index, value in enumerate(f[dataset].keys())]
+        datasets = [{'value': index, 'label': value, 'type': 'dataset'} for index, value in enumerate(f[dataset].keys())]
         return jsonify(dataset = datasets)
 
 @api.route('/api/meta', methods=['GET'])
@@ -44,12 +44,13 @@ def country_option():
     group = request.args.get('group')
     dataset = request.args.get('dataset')
 
-    FILE_NAME = os.path.join(DATA_WORKING_DIRECTORY, group, dataset)
+    # FILE_NAME = os.path.join(DATA_WORKING_DIRECTORY, group, dataset)
     meta = {}
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
         attributes = f["{}/{}".format(group, dataset)].attrs 
         years = attributes ['years'].tolist()
         for item in attributes['attributions']:
+            print(item)
             meta[item] = [{'label': _item[0], 'value': _item[1]} \
                 for _item in attributes['{}_attribution'.format(item)][1:]]
             
@@ -62,8 +63,8 @@ def data_set_table():
     """
 
     # get the file
-    folder = request.args.get('selected_folder')
-    dataset = request.args.get('selected_dataset')
+    group = request.args.get('group')
+    dataset = request.args.get('dataset')
     FILE_NAME = os.path.join(DATA_WORKING_DIRECTORY, folder, dataset)
 
     # get the selected rows
@@ -71,4 +72,10 @@ def data_set_table():
     PRODUCTS = request.values.getlist('selected_products[]')
     ELEMENTS = request.values.getlist('selected_elements[]')
     
+    with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
+        data_table = f["{}/{}".format(group, dataset)]
+        for i in f:
+            print (i)
+
+
     return jsonify("not implemented yet")
