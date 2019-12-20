@@ -52,7 +52,7 @@ def country_option():
         # years = attributes ['years'].tolist()
         for item in attributes['attributions']:
             print(item)
-            meta[item] = [{'value': _item[0], 'label': _item[1]} \
+            meta[item] = [{'value': _item[0], 'label': _item[1], 'type': item} \
                 for _item in attributes['{}_attribution'.format(item)][1:]]
             
         return jsonify(attributes = attributes['attributions'].tolist(), meta = meta)
