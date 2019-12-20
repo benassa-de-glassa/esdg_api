@@ -12,7 +12,8 @@ from . import api
 
 ## DEFINITIONS
 CWD = os.getcwd()
-DATA_WORKING_DIRECTORY = os.path.join(CWD, '/media/pi/UNTITLED/database.hdf5') 
+# DATA_WORKING_DIRECTORY = os.path.join(CWD, '/media/pi/UNTITLED/database.hdf5') 
+DATA_WORKING_DIRECTORY = os.path.join(CWD, 'data/database.hdf5')
 
 @api.route('/api/groups', methods=['GET'])
 def folder_option():
@@ -41,17 +42,17 @@ def country_option():
     """
     return jsonify response of metadata
     """
-    group = request.args.get('group')
+    group = request.args.get('groups')
     dataset = request.args.get('dataset')
 
     # FILE_NAME = os.path.join(DATA_WORKING_DIRECTORY, group, dataset)
     meta = {}
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
         attributes = f["{}/{}".format(group, dataset)].attrs 
-        years = attributes ['years'].tolist()
+        # years = attributes ['years'].tolist()
         for item in attributes['attributions']:
             print(item)
-            meta[item] = [{'label': _item[0], 'value': _item[1]} \
+            meta[item] = [{'value': _item[0], 'label': _item[1]} \
                 for _item in attributes['{}_attribution'.format(item)][1:]]
             
         return jsonify(attributes = attributes['attributions'].tolist(), meta = meta)
