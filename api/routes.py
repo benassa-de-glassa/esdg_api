@@ -117,4 +117,7 @@ def data_set_table():
         for line in lines:
             # add the dict formated line to data which will then be returned
             data.append({header[i]: np.nan_to_num(data_table[line, i]) for i in range(len(header)-len(meta))})
-        return jsonify( data = data)
+        header_dict = [{'name': item, 'type': 'string'} for item in header]
+        columns = [{'text': item, 'datafield': item, 'width': '100px'} for item in header]
+
+        return jsonify(header=header_dict, columns=columns, data = data)
