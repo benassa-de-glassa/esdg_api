@@ -33,11 +33,11 @@ def data_set_option():
     """
     return the files in the folder selected as 
     """
-    dataset = request.args.get('dataset')
+    group = request.args.get('groups')
 
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
         datasets = [{'value': index, 'label': value.replace(',', ''), 'type': 'dataset'}
-                    for index, value in enumerate(f[dataset].keys())]
+                    for index, value in enumerate(f[group].keys())]
         return jsonify(dataset=datasets)
 
 
@@ -86,37 +86,50 @@ def data_set_table():
         available_lines = np.arange(data_table_shape[0])
 
         # initialization of the selected set variables
-        lines = set()
+        lines = np.arange(data_table_shape[0])
 
+        zero_is_valid_line = True
         # iterate over all dimensions specified in the request
+        inverted_conversion_dicts = []
         for dimension in meta:
             # grab all values of the dimesion
             requested_values = request.values.getlist('{}'.format(dimension))[0].split(',')
             # table containing the conversion from name to 
             conversion_table = data_table.attrs['{}_attribution'.format(dimension)]
             conversion_dict = {item[1]: item[0] for item in conversion_table}
+            inverted_conversion_dicts.append({value: item for item, value in conversion_dict.items()})
+
 
             # convert the requsted values to the corresponding dimension item code
             requested_codes = [float(conversion_dict[value]) for value in requested_values]
+            print(requested_values)
+            print(type(requested_codes[0]))
 
             # get the column in which the codes are used
             column_index = np.where(conversion_table[0][0] == header)[0]
 
             # find the lines which match the codes
             mask = np.in1d(data_table[:, column_index], requested_codes)
+            print(dimension, np.sum(mask))
             # update the lines set
-            lines.update(set(mask * available_lines))
+            lines *= mask
+            print(set(available_lines * mask))
+
             # the line 0 has to be checked additionally as every 'False' mask index adds the 0 index to the set
-            if not mask[0]: lines.discard(0)
+            zero_is_valid_line *= mask[0] == True
 
         # sort the lines
-        lines = sorted(list(lines))
+        lines = sorted(list(set(lines)))
+        if not zero_is_valid_line: lines.remove(0)
 
         # initialize the data list
         data = []
         for line in lines:
             # add the dict formated line to data which will then be returned
             data.append({header[i]: np.nan_to_num(data_table[line, i]) for i in range(len(header)-len(meta))})
+            data[-1].update({
+                header[i]: inverted_conversion_dicts[j][data_table[line, i]] for j, i in enumerate(range(len(header)-len(meta), len(header)))
+                })
         header_dict = [{'name': item, 'type': 'string'} for item in header]
         columns = [{'text': item, 'datafield': item, 'width': '100px'} for item in header]
 
