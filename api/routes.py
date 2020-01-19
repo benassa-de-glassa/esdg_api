@@ -53,11 +53,11 @@ def country_option():
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
         attributes = f["{}/{}".format(group, dataset)].attrs
         # years = attributes ['years'].tolist()
-        for item in attributes['attributions']:
+        for item in attributes['dimensions']:
             meta[item] = [{'value': _item[0], 'label': _item[1].replace(',', ''), 'type': item} \
-                for _item in attributes['{}_attribution'.format(item)][1:]]
+                for _item in attributes['{}'.format(item)][1:]]
 
-        return jsonify(attributes=attributes['attributions'].tolist(), meta=meta)
+        return jsonify(attributes=attributes['dimensions'].tolist(), meta=meta)
 
 
 @api.route('/api/data', methods=['GET'])
