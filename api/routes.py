@@ -117,12 +117,8 @@ def data_set_table():
         for row in rows:
             # add the dict formated line to data which will then be returned
             data += [{int(row): data_table[row, columns].tolist()}]
-            # data.append({header[i]: np.nan_to_num(data_table[line, i]) for i in range(len(header)-len(meta))})
-            # data[-1].update({
-            #     header[i]: inverted_conversion_dicts[j][data_table[row, i]] for j, i in enumerate(range(len(header)-len(meta), len(header)))
-            #     })
 
-
+        header = header[columns]
         columns = list(map(str, columns))
-        # return jsonify(columns)
-        return jsonify(header=header.tolist(), columns=columns, data = data)
+
+        return jsonify(header=header.tolist(), data = data)
