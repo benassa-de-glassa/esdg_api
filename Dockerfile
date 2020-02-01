@@ -1,6 +1,7 @@
-FROM python:3.8
+FROM python:3.8-alpine
 
-RUN apt update -y && apt install -y libhdf5-dev
+RUN apk update && apk add build-base
+RUN apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing hdf5-dev
 
 COPY ./requirements.txt /app/requirements.txt
 
@@ -12,4 +13,4 @@ EXPOSE 80
 
 COPY . /app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]

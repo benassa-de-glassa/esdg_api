@@ -8,9 +8,7 @@ router = APIRouter()
 
 
 ## DEFINITIONS
-CWD = os.getcwd()
-# DATA_WORKING_DIRECTORY = os.path.join(CWD, 'data/database.hdf5')
-DATA_WORKING_DIRECTORY = os.path.join(CWD, '../data/database.hdf5')
+DATA_WORKING_DIRECTORY = os.environ['ESDG_DATABASE_PATH'] # needs the environment variable ESDG_DATABASE_BASE to be set
 
 
 @router.get('/groups')
@@ -48,7 +46,7 @@ def meta_option(groups: str, dataset: str):
         attributes = f["{}/{}".format(groups, dataset)].attrs
         # years = attributes ['years'].tolist()
         for item in attributes['dimensions']:
-            meta[item] = [{'value': _item[1], 'label': _item[0]}
+            meta[item] = [{ _item[1]: _item[0]}
                           for _item in attributes['{}'.format(item)][1:]]
 
         return {
@@ -107,6 +105,7 @@ def data_set_table(request: Request):
                 column_index = np.where(
                     data_table.attrs['{}'.format(dimension)][0][1] == header)[0]
 
+                header[column_index] = dimension
                 # find the lines which match the codes
                 mask = np.in1d(data_table[:, column_index], requested_codes)
                 available_rows *= mask
@@ -119,13 +118,13 @@ def data_set_table(request: Request):
         if not zero_is_valid_row:
             rows.remove(0)
 
-        data = []
+        data = {}
         for row in rows:
             # add the dict formated line to data which will then be returned
-            data += [{int(row): data_table[row, columns].tolist()}]
+            data[int(row)] = data_table[row, columns].tolist()
 
         header = tuple (header[columns].tolist())
-        
+
         return {
             'header': header,
             'data': data
