@@ -8,7 +8,8 @@ router = APIRouter()
 
 
 ## DEFINITIONS
-DATA_WORKING_DIRECTORY = os.environ['ESDG_DATABASE_PATH'] # needs the environment variable ESDG_DATABASE_BASE to be set
+# needs the environment variable ESDG_DATABASE_BASE to be set
+DATA_WORKING_DIRECTORY = os.environ['ESDG_DATABASE_PATH']
 
 
 @router.get('/groups')
@@ -60,9 +61,9 @@ def data_set_table(request: Request):
     """
     return the data as specified in the request
     the request must include the desired:
-     - group
-     - dataset
-     - at least one value for all available dimensions as returned by the meta_option function
+        - group
+        - dataset
+        - at least one value for all available dimensions as returned by the meta_option function
     :param: request URLencoded request
     """
 
