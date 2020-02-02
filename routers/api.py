@@ -89,7 +89,7 @@ def data_set_table(request: Request):
             requested_codes = request.query_params['{}'.format(dimension)].split(',')
             requested_codes = np.asarray(requested_codes, dtype=int)
 
-            if dimension == 'years':
+            if 'year' in dimension:
 
                 conversion_dict = {
                     int(entry[1]): entry[0] for entry in data_table.attrs['{}'.format(dimension)][1:]}
