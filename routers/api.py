@@ -9,15 +9,14 @@ router = APIRouter()
 
 ## DEFINITIONS
 CWD = os.getcwd()
-# DATA_WORKING_DIRECTORY = os.path.join(CWD, 'data/database.hdf5')
-DATA_WORKING_DIRECTORY = os.path.join(CWD, '../data/database.hdf5')
+DATA_WORKING_DIRECTORY = os.environ['ESDG_DATABASE_PATH']
 
 
 @router.get('/groups')
 def group_dict():
     """
     return the options for the first listbox in the main view as html options
-    i.e. the list of folders which host the databases
+    i.e. the list of folders which  the databases host
     """
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
         groups = [{'value': index, 'label': value}

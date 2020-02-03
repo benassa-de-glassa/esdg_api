@@ -1,0 +1,18 @@
+version: 0.1
+
+services:
+  api:
+    image: api:latest
+    ports: 
+      - "80:5000"
+    environment:
+      - ESDG_DATABASE_PATH=/mnt/db/database.hdf5
+    volumes:
+      - /mnt/db:db
+    
+  client:
+    image: client:latest
+    ports: 
+      - "3000:80"
+    environment:
+      - API_URL=api:5000
