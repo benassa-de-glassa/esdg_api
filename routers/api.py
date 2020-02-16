@@ -55,6 +55,24 @@ def meta_option(groups: str, dataset: str):
             'meta': meta
         }
 
+@router.get('/country_dimension')
+def country_dimension(groups: str, dataset: str):
+    """this function returns the a JSON array which includes all country-type dimensions of a given dataset
+
+    Arguments:
+        groups {str} -- name of the group/domain of the selected dataset
+        dataset {str} -- name of the dataset of the selected dataset
+    """        
+    country_dimension = []
+    with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
+        attributes = f["{}/{}".format(groups, dataset)].attrs
+        # years = attributes ['years'].tolist()
+        for item in attributes['dimensions']:
+            # very crude.. think of smarter way
+            if item in ['countries', 'reporter', 'partner']:
+                country_dimension.append(item)
+        return country_dimension        
+
 
 @router.get('/data')
 def data_set_table(request: Request):
