@@ -9,10 +9,8 @@ WORKDIR /app
 
 RUN pip install -r requirements.txt
 
-EXPOSE 80
-
 COPY . /app
 
 ENV ESDG_DATABASE_PATH=/db/database.hdf5
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0"]
