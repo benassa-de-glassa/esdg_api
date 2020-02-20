@@ -1,4 +1,5 @@
 import h5py
+from sas7bdat import SAS7BDAT
 import numpy as np
 import os
 from fastapi import APIRouter
@@ -10,6 +11,7 @@ router = APIRouter()
 ## DEFINITIONS
 # needs the environment variable ESDG_DATABASE_BASE to be set
 DATA_WORKING_DIRECTORY = os.environ['ESDG_DATABASE_PATH']
+COUNTRY_CONVERSION_TABLE = os.environ['ESDG_COUNTRY_CONVERSION']
 
 
 @router.get('/groups')
@@ -47,13 +49,14 @@ def meta_option(groups: str, dataset: str):
         attributes = f["{}/{}".format(groups, dataset)].attrs
         # years = attributes ['years'].tolist()
         for item in attributes['dimensions']:
-            meta[item] = [{ _item[1]: _item[0]}
-                          for _item in attributes['{}'.format(item)][1:]]
+            meta[item] = {_item[1]: _item[0]
+                          for _item in attributes['{}'.format(item)][1:]}
 
         return {
             'attributes': attributes['dimensions'].tolist(),
             'meta': meta
         }
+
 
 @router.get('/country_dimension')
 def country_dimension(groups: str, dataset: str):
@@ -62,7 +65,7 @@ def country_dimension(groups: str, dataset: str):
     Arguments:
         groups {str} -- name of the group/domain of the selected dataset
         dataset {str} -- name of the dataset of the selected dataset
-    """        
+    """
     country_dimension = []
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
         attributes = f["{}/{}".format(groups, dataset)].attrs
@@ -71,7 +74,25 @@ def country_dimension(groups: str, dataset: str):
             # very crude.. think of smarter way
             if item in ['countries', 'reporter', 'partner']:
                 country_dimension.append(item)
-        return country_dimension        
+        return country_dimension
+
+
+@router.get('/country_conversion')
+def country_conversion(from_code: str, to_code: str):
+    """
+    this function returns the a JSON object from the codes used in ESDG to 
+    those used in other databases which includes all country-type dimensions of 
+    a given dataset
+
+    """
+    with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
+        attributes = f["global_conversion_tables/"].attrs["country_codes"]
+        # get the column where the requested codes can be found
+        from_col = np.where(attributes[0] == from_code)
+        to_col = np.where(attributes[0] == to_code)
+
+        # do not use int(float(string)) in future when database is created better
+        return {int(float(line[from_col][0])): line[to_col][0] for line in attributes[1:]}
 
 
 @router.get('/data')
@@ -105,7 +126,8 @@ def data_set_table(request: Request):
         zero_is_valid_row = True
 
         for dimension in meta:
-            requested_codes = request.query_params['{}'.format(dimension)].split(',')
+            requested_codes = request.query_params['{}'.format(
+                dimension)].split(',')
             requested_codes = np.asarray(requested_codes, dtype=int)
 
             if 'year' in dimension:
@@ -132,7 +154,8 @@ def data_set_table(request: Request):
                 # the line 0 has to be checked additionally as every 'False' mask index adds the 0 index to the set
                 zero_is_valid_row *= mask[0] == True
 
-        # sort the lines
+        # sort the lines 
+        # TODO: sorting should not be necessary?
         rows = sorted(list(set(available_rows)))
         if not zero_is_valid_row:
             rows.remove(0)
@@ -142,7 +165,7 @@ def data_set_table(request: Request):
             # add the dict formated line to data which will then be returned
             data[int(row)] = data_table[row, columns].tolist()
 
-        header = tuple (header[columns].tolist())
+        header = tuple(header[columns].tolist())
 
         return {
             'header': header,
