@@ -1,5 +1,4 @@
 import h5py
-from sas7bdat import SAS7BDAT
 import numpy as np
 import os
 from fastapi import APIRouter
@@ -154,7 +153,7 @@ def data_set_table(request: Request):
                 # the line 0 has to be checked additionally as every 'False' mask index adds the 0 index to the set
                 zero_is_valid_row *= mask[0] == True
 
-        # sort the lines 
+        # sort the lines
         # TODO: sorting should not be necessary?
         rows = sorted(list(set(available_rows)))
         if not zero_is_valid_row:
