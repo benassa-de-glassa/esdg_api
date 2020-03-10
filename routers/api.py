@@ -4,13 +4,14 @@ import os
 from fastapi import APIRouter
 from starlette.requests import Request
 
+import pandas as pd
+
 router = APIRouter()
 
 
 ## DEFINITIONS
 # needs the environment variable ESDG_DATABASE_BASE to be set
 DATA_WORKING_DIRECTORY = os.environ['ESDG_DATABASE_PATH']
-COUNTRY_CONVERSION_TABLE = os.environ['ESDG_COUNTRY_CONVERSION']
 
 
 @router.get('/groups')
@@ -79,7 +80,7 @@ def country_dimension(groups: str, dataset: str):
 @router.get('/country_conversion')
 def country_conversion(from_code: str, to_code: str):
     """
-    this function returns the a JSON object from the codes used in ESDG to 
+    this function returns a JSON object from the codes used in ESDG to 
     those used in other databases which includes all country-type dimensions of 
     a given dataset
 
@@ -90,8 +91,26 @@ def country_conversion(from_code: str, to_code: str):
         from_col = np.where(attributes[0] == from_code)
         to_col = np.where(attributes[0] == to_code)
 
-        # do not use int(float(string)) in future when database is created better
+        # do not use int(float(string)) in future when database is created using db.astype(int, errors='ignore')
         return {int(float(line[from_col][0])): line[to_col][0] for line in attributes[1:]}
+
+@router.get('/hs') # harmonized system
+def harmonized_system(maximum_code_level: int=3):
+    """
+    this function returns the a JSON object from the codes used in ESDG to 
+    those used in other databases which includes all country-type dimensions of 
+    a given dataset
+
+    """
+    db = pd.read_excel('../db/UN Comtrade Commodity Classifications.xlsx', dtype=str, )
+    db = db.replace(np.nan, '', regex=True)
+    ids = db['Code'].values
+    label = db['Description'].values
+    parent = db['Code Parent'].values
+
+    return {ids[i]: [label[i], parent[i]] for i, _ in enumerate(ids)}
+
+
 
 
 @router.get('/data')
