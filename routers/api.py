@@ -10,8 +10,6 @@ router = APIRouter()
 ## DEFINITIONS
 # needs the environment variable ESDG_DATABASE_BASE to be set
 DATA_WORKING_DIRECTORY = os.environ['ESDG_DATABASE_PATH']
-COUNTRY_CONVERSION_TABLE = os.environ['ESDG_COUNTRY_CONVERSION']
-
 
 @router.get('/groups')
 def group_dict():
@@ -46,10 +44,11 @@ def meta_option(groups: str, dataset: str):
     meta = {}
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
         attributes = f["{}/{}".format(groups, dataset)].attrs
+        print(attributes['dimensions'])
         # years = attributes ['years'].tolist()
         for item in attributes['dimensions']:
             meta[item] = {_item[1]: _item[0]
-                          for _item in attributes['{}'.format(item)][1:]}
+                          for _item in attributes['{}'.format(item.decode('utf-8'))][1:]}
 
         return {
             'attributes': attributes['dimensions'].tolist(),
@@ -71,8 +70,8 @@ def country_dimension(groups: str, dataset: str):
         # years = attributes ['years'].tolist()
         for item in attributes['dimensions']:
             # very crude.. think of smarter way
-            if item in ['countries', 'reporter', 'partner']:
-                country_dimension.append(item)
+            if item.decode('utf-8') in ['countries', 'reporter', 'partner']:
+                country_dimension.append(item.decode('utf-8'))
         return country_dimension
 
 
