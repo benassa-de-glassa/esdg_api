@@ -13,7 +13,6 @@ router = APIRouter()
 # needs the environment variable ESDG_DATABASE_BASE to be set
 DATA_WORKING_DIRECTORY = os.environ['ESDG_DATABASE_PATH']
 
-
 @router.get('/groups')
 def group_dict():
     """
@@ -47,10 +46,11 @@ def meta_option(groups: str, dataset: str):
     meta = {}
     with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
         attributes = f["{}/{}".format(groups, dataset)].attrs
+        print(attributes['dimensions'])
         # years = attributes ['years'].tolist()
         for item in attributes['dimensions']:
             meta[item] = {_item[1]: _item[0]
-                          for _item in attributes['{}'.format(item)][1:]}
+                          for _item in attributes['{}'.format(item.decode('utf-8'))][1:]}
 
         return {
             'attributes': attributes['dimensions'].tolist(),
@@ -72,8 +72,8 @@ def country_dimension(groups: str, dataset: str):
         # years = attributes ['years'].tolist()
         for item in attributes['dimensions']:
             # very crude.. think of smarter way
-            if item in ['countries', 'reporter', 'partner']:
-                country_dimension.append(item)
+            if item.decode('utf-8') in ['countries', 'reporter', 'partner']:
+                country_dimension.append(item.decode('utf-8'))
         return country_dimension
 
 
@@ -94,6 +94,24 @@ def country_conversion(from_code: str, to_code: str):
         # do not use int(float(string)) in future when database is created using db.astype(int, errors='ignore')
         return {int(float(line[from_col][0])): line[to_col][0] for line in attributes[1:]}
 
+@router.get('/product_dimension')
+def product_dimension(groups: str, dataset: str):
+    """this function returns the a JSON array which includes all producy-type dimensions of a given dataset
+
+    Arguments:
+        groups {str} -- name of the group/domain of the selected dataset
+        dataset {str} -- name of the dataset of the selected dataset
+    """
+    product_dimension = []
+    with h5py.File(DATA_WORKING_DIRECTORY, 'r') as f:
+        attributes = f["{}/{}".format(groups, dataset)].attrs
+        # years = attributes ['years'].tolist()
+        for item in attributes['dimensions']:
+            # very crude.. think of smarter way
+            if item.decode('utf-8') in ['products']:
+                product_dimension.append(item.decode('utf-8'))
+        return product_dimension
+
 @router.get('/hs') # harmonized system
 def harmonized_system(maximum_code_level: int=3):
     """
@@ -107,8 +125,9 @@ def harmonized_system(maximum_code_level: int=3):
     ids = db['Code'].values
     label = db['Description'].values
     parent = db['Code Parent'].values
+    level = db['Level'].values
 
-    return {ids[i]: [label[i], parent[i]] for i, _ in enumerate(ids)}
+    return {product_id + 4* '0': [label[i], parent[i]+ 4* '0'] for i, product_id in enumerate(ids)}
 
 
 
